@@ -1,10 +1,10 @@
 try:
     # Python 3
     import tkinter as tk
+    from PIL import Image, ImageTk
 except ImportError:
     # Python 2
     import Tkinter as tk
-
 class NodeToken(tk.Canvas):
     def __init__(self, host_canvas, data, node_name):
         tk.Canvas.__init__(self, width=20, height=20, highlightthickness=0)
@@ -29,8 +29,9 @@ class NodeToken(tk.Canvas):
 
     def render(self, data, node_name):
         """Draw on canvas what we want node to look like"""
-        self.create_oval(5,5,15,15, fill='red',outline='black')
-
+        #self.create_oval(5,5,15,15, fill='red',outline='black')
+        photo = ImageTk.PhotoImage(Image.open('C:\\Users\\hersc\\Documents\\GitHub\\BGE\\Untitled Folder\\bild0.JPG'))
+        self.create_image((500, 500),image=photo)
 
     def mark(self):
         """Mark the token just so it's easy for the user to pick out"""
@@ -207,7 +208,7 @@ class EdgeToken(object):
 class TkPassthroughNodeToken(NodeToken):
     def __init__(self, *args, **kwargs):
         self._default_label_color = 'black'
-        self._default_outline_color = 'black'
+        #self._default_outline_color = 'black'
 
         NodeToken.__init__(self, *args, **kwargs)
 
@@ -220,15 +221,18 @@ class TkPassthroughNodeToken(NodeToken):
 
         # Take a first cut at creating the marker and label
         self.label = self.create_text(0, 0, text=node_name)
-        self.marker = self.create_oval(0, 0, 10, 10,
-                                       fill='red',outline='black')
+        #photo = ImageTk.PhotoImage(Image.open('C:\\Users\\hersc\\Documents\\GitHub\\BGE\\Untitled Folder\\bild0.JPG').resize((100,100), Image.ANTIALIAS))
+        photo = ImageTk.PhotoImage(Image.open(data.get('imagename')).resize((30,30), Image.ANTIALIAS))
+        self.photo = photo
+        self.marker = self.create_image((500, 500),image=self.photo)
+#self.create_oval(0, 0, 10, 10,fill='green',outline='black')
 
         # Modify marker using options from data
         cfg = self.itemconfig(self.marker)
         for k,v in cfg.copy().items():
             cfg[k] = data.get(k, cfg[k][-1])
         self.itemconfig(self.marker, **cfg)
-        self._default_outline_color = data.get('outline',self._default_outline_color)
+        #self._default_outline_color = data.get('outline',self._default_outline_color)
 
         # Modify the text label using options from data
         cfg = self.itemconfig(self.label)
@@ -247,19 +251,19 @@ class TkPassthroughNodeToken(NodeToken):
         # Place label and marker
         mid = ( int(br[0]/2.0), int(br[1]/2.0)+7 )
         self.coords(self.label, mid)
-        self.coords(self.marker, mid[0]-5,0, mid[0]+5,10)
+        self.coords(self.marker, 10,10)#mid[0]-5,0, mid[0]+5,10)
 
 
     def mark_complete(self):
         """Called by host canvas when all of my edges have been drawn"""
         self._complete = True
-        self.itemconfig(self.marker, outline=self._default_outline_color)
+        #self.itemconfig(self.marker, outline=self._default_outline_color)
         self.itemconfig(self.label, fill=self._default_label_color)
 
     def mark_incomplete(self):
         """Called by host canvas when all of my edges have not been drawn"""
         self._complete = False
-        self.itemconfig(self.marker, outline='')
+        self.itemconfig(self.marker)#, outline='')
         self.itemconfig(self.label, fill='grey')
 
 
